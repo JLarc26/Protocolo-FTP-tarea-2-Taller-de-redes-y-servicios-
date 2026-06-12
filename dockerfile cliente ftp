@@ -1,0 +1,36 @@
+FROM ubuntu:latest
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    git \
+    gcc \
+    g++ \
+    make \
+    autoconf \
+    libtool \
+    gettext \
+    automake \
+    pkg-config \
+    libreadline-dev \
+    zlib1g-dev \
+    bison \
+    libgnutls28-dev \
+    gperf \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src
+
+RUN git clone https://github.com/lavv17/lftp.git
+RUN git clone git://git.savannah.gnu.org/gnulib.git
+
+ENV PATH="/usr/src/gnulib:${PATH}"
+
+WORKDIR /usr/src/lftp
+
+RUN ./autogen.sh
+RUN ./configure
+RUN make
+RUN make install
+
+CMD ["lftp"]
