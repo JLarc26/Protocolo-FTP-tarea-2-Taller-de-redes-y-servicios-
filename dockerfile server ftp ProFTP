@@ -1,0 +1,27 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y \
+    git gcc make libssl-dev libpam-dev \
+    pkg-config autoconf libtool
+
+WORKDIR /opt
+
+RUN git clone https://github.com/proftpd/proftpd.git
+
+WORKDIR /opt/proftpd
+
+RUN ./configure && make && make install
+
+RUN mkdir -p /ftp/tarea2 && \
+    echo "Hola mundo" > /ftp/tarea2/hola.txt
+
+RUN useradd -d /ftp/tarea2 -s /bin/false tarea2 && \
+    echo "tarea2:tarea2" | chpasswd
+
+RUN chown -R tarea2:tarea2 /ftp/tarea2
+
+COPY proftpd.conf /usr/local/etc/proftpd.conf
+
+EXPOSE 21
+
+CMD ["proftpd", "--nodaemon"]
